@@ -1,0 +1,350 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "url": "https://www.artificialintelligence-news.com/feed/",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [
+        -688,
+        -48
+      ],
+      "id": "54c69726-f371-436d-84a1-0c5dd011ae9f",
+      "name": "AI News RSS"
+    },
+    {
+      "parameters": {
+        "url": "https://news.google.com/rss/search?q=llm&hl=en-US&gl=US&ceid=US:en",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [
+        -688,
+        112
+      ],
+      "id": "93498684-79e4-4d2a-af40-a20eca4a9df3",
+      "name": "Google News LLM"
+    },
+    {
+      "parameters": {
+        "url": "https://export.arxiv.org/rss/cs.AI",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [
+        -688,
+        336
+      ],
+      "id": "933e30d5-aec7-4e1b-8301-beeebba39e0b",
+      "name": "arXiv AI RSS"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Process and clean RSS feed data\nconst items = $input.all();\nconst processedItems = [];\n\nfor (const item of items) {\n  const data = item.json;\n  \n  // Extract and clean the data\n  const processedItem = {\n    title: data.title || data.titleSnippet || 'No title',\n    url: data.link || data.url || '',\n    description: data.contentSnippet || data.description || '',\n    pubDate: data.pubDate || data.isoDate || new Date().toISOString(),\n    source: data.source || 'Unknown source',\n    guid: data.guid || data.id || '',\n    // Add source identification\n    feedSource: data.feedSource || 'Unknown feed'\n  };\n  \n  // Only include items with valid URLs\n  if (processedItem.url && processedItem.url.startsWith('http')) {\n    processedItems.push(processedItem);\n  }\n}\n\n// Remove duplicates based on URL\nconst uniqueItems = [];\nconst seenUrls = new Set();\n\nfor (const item of processedItems) {\n  if (!seenUrls.has(item.url)) {\n    seenUrls.add(item.url);\n    uniqueItems.push(item);\n  }\n}\n\n// Sort by publication date (most recent first)\nuniqueItems.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));\n\n// Limit to the 20 most recent articles\nconst limitedItems = uniqueItems.slice(0, 20);\n\nreturn limitedItems.map(item => ({ json: item }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -224,
+        112
+      ],
+      "id": "36fdb49f-58b8-495c-a948-8ad02b53bcb1",
+      "name": "Process Articles"
+    },
+    {
+      "parameters": {
+        "maxItems": 3
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        -16,
+        112
+      ],
+      "id": "732432f0-7828-43f8-83cc-2c1a96e6eaa9",
+      "name": "Limit Articles"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare data for AI summary\nconst articles = $input.all().map(item => item.json);\n\n// Create a structured prompt for AI\nconst currentDate = new Date().toLocaleDateString('en-US', {\n  weekday: 'long',\n  year: 'numeric',\n  month: 'long',\n  day: 'numeric'\n});\n\nconst prompt = `You are an expert AI news editor creating a weekly AI newsletter for ${currentDate}.\n\nPlease analyze the following ${articles.length} AI-related articles and create a comprehensive newsletter with the following structure:\n\n1. **Executive Summary** (2-3 sentences highlighting the most important developments)\n2. **Key Developments** (3-4 key stories with brief explanations and links)\n3. **Research & Innovation** (Notable papers, models, or technical advances)\n4. **Industry News** (Business updates, partnerships, funding)\n5. **Quick Summaries** (Other interesting developments in bullet points)\n\nGuidelines:\n- Keep the newsletter concise but informative (aim for 800-1000 words)\n- Include direct links to sources using markdown format [title](url)\n- Group related stories together\n- Focus on developments that matter to practitioners, researchers, and AI enthusiasts\n- Avoid duplicate coverage of the same story\n- Use a professional but engaging tone\n- Include publication dates when relevant\n\nArticles to analyze:\n\n${articles.map((article, index) => `\n**Article ${index + 1}:**\n- Title: ${article.title}\n- URL: ${article.url}\n- Description: ${article.description}\n- Published: ${new Date(article.pubDate).toLocaleDateString()}\n- Source: ${article.source}\n`).join('\\n')}\n\nPlease create the newsletter in markdown format.`;\n\nreturn [{\n  json: {\n    prompt: prompt,\n    articleCount: articles.length,\n    articles: articles,\n    currentDate: currentDate\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        192,
+        112
+      ],
+      "id": "e658ac08-b3c0-4982-aba1-ffa5addbf0f0",
+      "name": "Prepare AI Prompt"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.prompt }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        400,
+        112
+      ],
+      "id": "6ddbf935-1fa7-43e1-99b8-aebcd840d5e9",
+      "name": "AI Newsletter Generator"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Process the AI-generated newsletter and add metadata\nconst aiOutput = $json.output || $json.text || '';\nconst metadata = $json;\n\n// Extract newsletter content\nconst newsletterContent = aiOutput;\n\n// Create the final newsletter object\nconst newsletter = {\n  content: newsletterContent,\n  metadata: {\n    generatedDate: new Date().toISOString(),\n    articleCount: metadata.articleCount || 0,\n    currentDate: metadata.currentDate || new Date().toLocaleDateString(),\n    wordCount: newsletterContent.split(' ').length,\n    characterCount: newsletterContent.length\n  },\n  // Also create HTML version for email\n  htmlContent: newsletterContent\n    .replace(/\\*\\*(.*?)\\*\\*/g, '<strong>$1</strong>') // Bold\n    .replace(/\\*(.*?)\\*/g, '<em>$1</em>') // Italic\n    .replace(/\\[([^\\]]+)\\]\\(([^)]+)\\)/g, '<a href=\"$2\" target=\"_blank\">$1</a>') // Links\n    .replace(/\\n\\n/g, '</p><p>') // Paragraphs\n    .replace(/\\n/g, '<br>') // Line breaks\n    .replace(/^/, '<p>') // Start paragraph\n    .replace(/$/, '</p>') // End paragraph\n};\n\nreturn [{ json: newsletter }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        112
+      ],
+      "id": "5da502da-c16a-4ed2-b700-dd3a597b8992",
+      "name": "Process Newsletter"
+    },
+    {
+      "parameters": {
+        "html": "={{ $json.htmlContent }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.markdown",
+      "typeVersion": 1,
+      "position": [
+        912,
+        112
+      ],
+      "id": "820740a9-92af-4a2b-bd96-feb8dcdeacd1",
+      "name": "Convert to HTML"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Activate all RSS feeds\nreturn [\n  { json: { trigger: 'ai-news' } },\n  { json: { trigger: 'google-llm' } },\n  { json: { trigger: 'arxiv-ai' } }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -992,
+        112
+      ],
+      "id": "0455f6ae-415f-4f93-93a6-9f4ec74cf620",
+      "name": "Activate Feeds"
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        -432,
+        96
+      ],
+      "id": "cbde566e-e004-45ea-8c0a-744dea4b8ca2",
+      "name": "Merge All Feeds"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5",
+          "mode": "list",
+          "cachedResultName": "gpt-5"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        400,
+        272
+      ],
+      "id": "d97cae4a-43f4-4a83-b10e-02de40200dd0",
+      "name": "OpenAI GPT-5",
+      "credentials": {
+        "openAiApi": {
+          "id": "N3fZnL1E6XQ55YQ2",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "newsletter@yourdomain.com",
+        "toEmail": "recipient@example.com",
+        "subject": "Weekly AI Newsletter - {{ $json.metadata.currentDate }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [
+        1104,
+        112
+      ],
+      "id": "db3023ee-bdce-4fb9-85f3-b2e3f9c44152",
+      "name": "Send Newsletter Email",
+      "webhookId": "5c359ab9-4087-46f8-80ae-6a1b1456af55",
+      "credentials": {
+        "smtp": {
+          "id": "lXbgZ1eoLTYdnL7w",
+          "name": "SMTP account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "AI News RSS": {
+      "main": [
+        [
+          {
+            "node": "Merge All Feeds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google News LLM": {
+      "main": [
+        [
+          {
+            "node": "Merge All Feeds",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "arXiv AI RSS": {
+      "main": [
+        [
+          {
+            "node": "Merge All Feeds",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Process Articles": {
+      "main": [
+        [
+          {
+            "node": "Limit Articles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit Articles": {
+      "main": [
+        [
+          {
+            "node": "Prepare AI Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare AI Prompt": {
+      "main": [
+        [
+          {
+            "node": "AI Newsletter Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Newsletter Generator": {
+      "main": [
+        [
+          {
+            "node": "Process Newsletter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Newsletter": {
+      "main": [
+        [
+          {
+            "node": "Convert to HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to HTML": {
+      "main": [
+        [
+          {
+            "node": "Send Newsletter Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Activate Feeds": {
+      "main": [
+        [
+          {
+            "node": "AI News RSS",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Google News LLM",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "arXiv AI RSS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge All Feeds": {
+      "main": [
+        [
+          {
+            "node": "Process Articles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI GPT-5": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Newsletter Generator",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "178da897bb6b78b24c9e4930f95fd2acb0eba6d801f219e12942c0deaad51d0c"
+  }
+}
