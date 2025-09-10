@@ -1,4 +1,5 @@
 {
+  "name": "My workflow",
   "nodes": [
     {
       "parameters": {
@@ -6,12 +7,12 @@
         "options": {}
       },
       "type": "n8n-nodes-base.rssFeedRead",
-      "typeVersion": 1,
+      "typeVersion": 1.2,
       "position": [
-        -688,
-        -48
+        -1328,
+        -80
       ],
-      "id": "54c69726-f371-436d-84a1-0c5dd011ae9f",
+      "id": "d259d5f7-25f7-4590-a538-a07f9fea6754",
       "name": "AI News RSS"
     },
     {
@@ -20,12 +21,12 @@
         "options": {}
       },
       "type": "n8n-nodes-base.rssFeedRead",
-      "typeVersion": 1,
+      "typeVersion": 1.2,
       "position": [
-        -688,
-        112
+        -1328,
+        96
       ],
-      "id": "93498684-79e4-4d2a-af40-a20eca4a9df3",
+      "id": "68c8f587-ecce-42a2-9d52-400b4fabf652",
       "name": "Google News LLM"
     },
     {
@@ -34,12 +35,12 @@
         "options": {}
       },
       "type": "n8n-nodes-base.rssFeedRead",
-      "typeVersion": 1,
+      "typeVersion": 1.2,
       "position": [
-        -688,
-        336
+        -1328,
+        320
       ],
-      "id": "933e30d5-aec7-4e1b-8301-beeebba39e0b",
+      "id": "c2aacc3d-de85-4a55-8607-b438021654cb",
       "name": "arXiv AI RSS"
     },
     {
@@ -49,10 +50,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -224,
-        112
+        -864,
+        96
       ],
-      "id": "36fdb49f-58b8-495c-a948-8ad02b53bcb1",
+      "id": "85df311f-81ce-49a4-ada1-7005c5ec0735",
       "name": "Process Articles"
     },
     {
@@ -62,10 +63,10 @@
       "type": "n8n-nodes-base.limit",
       "typeVersion": 1,
       "position": [
-        -16,
-        112
+        -656,
+        96
       ],
-      "id": "732432f0-7828-43f8-83cc-2c1a96e6eaa9",
+      "id": "6fa191f6-1940-4189-ab6c-703a9bfd5306",
       "name": "Limit Articles"
     },
     {
@@ -75,10 +76,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        192,
-        112
+        -448,
+        96
       ],
-      "id": "e658ac08-b3c0-4982-aba1-ffa5addbf0f0",
+      "id": "a05a6d78-a1e4-4193-bf27-9bb105eb83bb",
       "name": "Prepare AI Prompt"
     },
     {
@@ -90,11 +91,12 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 2.2,
       "position": [
-        400,
-        112
+        -240,
+        96
       ],
-      "id": "6ddbf935-1fa7-43e1-99b8-aebcd840d5e9",
-      "name": "AI Newsletter Generator"
+      "id": "1fe1fe0e-834d-4c0b-900b-167a22b20cc7",
+      "name": "AI Newsletter Generator",
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -103,10 +105,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        720,
-        112
+        80,
+        96
       ],
-      "id": "5da502da-c16a-4ed2-b700-dd3a597b8992",
+      "id": "479fa2d9-7877-46d3-8833-910404b1f235",
       "name": "Process Newsletter"
     },
     {
@@ -117,10 +119,10 @@
       "type": "n8n-nodes-base.markdown",
       "typeVersion": 1,
       "position": [
-        912,
-        112
+        272,
+        96
       ],
-      "id": "820740a9-92af-4a2b-bd96-feb8dcdeacd1",
+      "id": "583499ab-8758-435a-9bbc-2053eb3e9502",
       "name": "Convert to HTML"
     },
     {
@@ -130,10 +132,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -992,
-        112
+        -1632,
+        96
       ],
-      "id": "0455f6ae-415f-4f93-93a6-9f4ec74cf620",
+      "id": "5950e944-7a20-4ac0-a3d7-80e45d62bec1",
       "name": "Activate Feeds"
     },
     {
@@ -141,12 +143,12 @@
         "numberInputs": 3
       },
       "type": "n8n-nodes-base.merge",
-      "typeVersion": 3,
+      "typeVersion": 3.2,
       "position": [
-        -432,
-        96
+        -1072,
+        80
       ],
-      "id": "cbde566e-e004-45ea-8c0a-744dea4b8ca2",
+      "id": "d3efc965-bac1-404b-8b74-68f42ee156b1",
       "name": "Merge All Feeds"
     },
     {
@@ -162,42 +164,46 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.2,
       "position": [
-        400,
-        272
+        -240,
+        256
       ],
-      "id": "d97cae4a-43f4-4a83-b10e-02de40200dd0",
+      "id": "1d8176a6-e579-4d3b-a6a7-d447b3e7c767",
       "name": "OpenAI GPT-5",
       "credentials": {
         "openAiApi": {
-          "id": "N3fZnL1E6XQ55YQ2",
+          "id": "SRdHSqXUqF37M8v9",
           "name": "OpenAi account"
         }
-      }
+      },
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
-        "fromEmail": "newsletter@yourdomain.com",
-        "toEmail": "recipient@example.com",
-        "subject": "Weekly AI Newsletter - {{ $json.metadata.currentDate }}",
+        "fromEmail": "hansellrivera.77@gmail.com",
+        "toEmail": "hansell.rivera@nicasource.com",
+        "subject": "={{ 'NS Weekly AI Newsletter - ' + $json.metadata.currentDate }}",
+        "html": "={{ $json.htmlContent }}",
         "options": {}
       },
       "type": "n8n-nodes-base.emailSend",
-      "typeVersion": 2,
+      "typeVersion": 2.1,
       "position": [
-        1104,
-        112
+        464,
+        96
       ],
-      "id": "db3023ee-bdce-4fb9-85f3-b2e3f9c44152",
+      "id": "ddace28d-dd5a-4c30-be37-22d54847bc70",
       "name": "Send Newsletter Email",
       "webhookId": "5c359ab9-4087-46f8-80ae-6a1b1456af55",
       "credentials": {
         "smtp": {
-          "id": "lXbgZ1eoLTYdnL7w",
+          "id": "3sMmiBUjyuQA9tMQ",
           "name": "SMTP account"
         }
-      }
+      },
+      "onError": "continueRegularOutput"
     }
   ],
+  "pinData": {},
   "connections": {
     "AI News RSS": {
       "main": [
@@ -342,9 +348,15 @@
       ]
     }
   },
-  "pinData": {},
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "14bf9bc0-c2dc-47e1-98c1-3e3bcd8b4c81",
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "178da897bb6b78b24c9e4930f95fd2acb0eba6d801f219e12942c0deaad51d0c"
-  }
+    "instanceId": "46402ab0c04eeb31d09e4db8942587a6cd95bccef12ba105c306680fbccbd509"
+  },
+  "id": "OZaJLCTtzNHVny0A",
+  "tags": []
 }
