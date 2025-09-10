@@ -157,6 +157,44 @@ This project was built for an AI hackathon and welcomes contributions:
 
 ---
 
+## 👥 Contributors
+
+This project was made possible by the amazing team at Nicasource:
+
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/alvaroNicasource">
+        <img src="https://github.com/alvaroNicasource.png" width="100px;" alt="Alvaro Cardenas"/>
+        <br />
+        <sub><b>Alvaro Cardenas</b></sub>
+      </a>
+      <br />
+      <a href="https://github.com/alvaroNicasource" title="GitHub">@alvaroNicasource</a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/hanriverar-ns">
+        <img src="https://github.com/hanriverar-ns.png" width="100px;" alt="Hansell Rivera"/>
+        <br />
+        <sub><b>Hansell Rivera</b></sub>
+      </a>
+      <br />
+      <a href="https://github.com/hanriverar-ns" title="GitHub">@hanriverar-ns</a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/enriquepalaciosv">
+        <img src="https://github.com/enriquepalaciosv.png" width="100px;" alt="Enrique Palacios"/>
+        <br />
+        <sub><b>Enrique Palacios</b></sub>
+      </a>
+      <br />
+      <a href="https://github.com/enriquepalaciosv" title="GitHub">@enriquepalaciosv</a>
+    </td>
+  </tr>
+</table>
+
+---
+
 ## 📄 License
 
 This project is open source and available under the [MIT License](LICENSE).
